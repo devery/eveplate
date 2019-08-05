@@ -122,13 +122,14 @@ devery.init()
 function createPackageJson(opts) {
     const packageJson = {
         "name": opts.name,
-        "version": "0.0.1",
         "description": opts.description,
+        "version": "0.0.1",
+        "private": true,
         "author": "<AUTHOR>",
         "license": "<LICENSE>",
         "main": "dist/index.js",
         "dependencies": {
-            "@devery/devery": "^0.1.13",
+            "@devery/devery": "^0.1.25",
             "body-parser": "^1.16.0",
             "cookie-parser": "^1.4.3",
             "cors": "^2.8.1",

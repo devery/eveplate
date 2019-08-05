@@ -4,8 +4,9 @@ const _ = require('lodash');
 function createPackageJSON(name, description) {
     return {
         "name": name,
-        "version": "0.0.1",
         "description": description,
+        "version": "0.0.1",
+        "private": true,
         "author": "<AUTHOR>",
         "license": "<LICENSE>",
         "main": "index.js",
@@ -15,13 +16,13 @@ function createPackageJSON(name, description) {
         },
         "keywords": [],
         "dependencies": {
+            "@devery/devery": "^0.1.25",
             "@angular/common": "^6.1.6",
             "@angular/compiler": "^6.1.6",
             "@angular/core": "^6.1.6",
             "@angular/forms": "^6.1.6",
             "@angular/platform-browser": "^6.1.6",
             "@angular/platform-browser-dynamic": "^6.1.6",
-            "@devery/devery": "^0.1.13",
             "core-js": "^2.5.7",
             "rxjs": "^6.2.2",
             "zone.js": "^0.8.26"

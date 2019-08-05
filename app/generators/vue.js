@@ -4,8 +4,9 @@ const _ = require('lodash');
 function createPackageJSON(name, description) {
     return {
         "name": name,
-        "version": "0.0.1",
         "description": description,
+        "version": "0.0.1",
+        "private": true,
         "author": "<AUTHOR>",
         "license": "<LICENSE>",
         "main": "index.js",
@@ -15,8 +16,8 @@ function createPackageJSON(name, description) {
         },
         "keywords": [],
         "dependencies": {
+            "@devery/devery": "^0.1.25",
             "vue": "^2.5.16",
-            "@devery/devery": "^0.1.13",
         },
         "devDependencies": {
             "@babel/core": "^7.5.5",
