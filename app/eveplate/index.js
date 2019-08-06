@@ -3,6 +3,7 @@ const fs = require('fs');
 const fsExtra = require('fs-extra');
 const os = require('os');
 const path = require('path');
+const defaults = require('./defaults');
 
 const Generator = require('yeoman-generator');
 const Utils = require('./utils');
@@ -16,6 +17,7 @@ module.exports = class extends Generator {
         this.utils = new Utils();
         this.ask = new Ask(this);
         this.create = new Create(this);
+        this.defaults = defaults;
         this.root = path.resolve(path.join(__dirname, '../', '../'));
     }
 
@@ -32,7 +34,7 @@ module.exports = class extends Generator {
                 const { about = {}, run: value } = require(generatorFile);
                 let { displayName: name } = about;
 
-                name = this.utils.toStringSafe(name).trim();
+                name = this.utils.toSafeShortStr(name);
 
                 if (name === '') name = path.basename(generatorFile);
 
