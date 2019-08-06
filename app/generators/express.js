@@ -55,7 +55,7 @@ exports.run = async function () {
         opts
     );
 
-    this.create.fromSource(templatesDir, `${outDir}/src/`, { database })('index.js.ejs');
+    this.create.fromSource(templatesDir, `${outDir}/src/`, { database })`index.js.ejs`;
 
     this.create.gitIgnore(outDir, this.defaults.ignore);
 
@@ -77,7 +77,7 @@ exports.run = async function () {
         env['JWT_SECRET'] = 'some-secret';
     }
 
-    this.create.env(outDir, this.utils.sortObjectByKey(env));
+    this.create.env(outDir, env);
 
     this.create.README(
         templatesDir, outDir, {

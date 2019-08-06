@@ -29,7 +29,13 @@ exports.run = async function () {
         { title: this.utils.encodeHtml(title) }
     );
 
-    this.create.gitIgnore(outDir, this.defaults.ignore);
+    this.create.gitIgnore(
+        outDir,
+        this.defaults.ignore.concat([
+            '/dist/*',
+            '!/dist/index.html',
+        ])
+    );
 
     this.create.README(
         templatesDir,

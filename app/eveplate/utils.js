@@ -22,19 +22,6 @@ class Utils {
         return new AllHtmlEntities().encode(String(str));
     }
 
-    sortObjectByKey(obj) {
-        if (!obj) return obj;
-
-        return _.chain(obj)
-            .keys()
-            .sortBy((key) => this.toSafeShortStr(key).toLowerCase())
-            .reduce((a, i) => {
-                a[i] = obj[i];
-                return a
-            }, {})
-            .value();
-    }
-
     toStr(val) {
         return _.toString(val)
     }

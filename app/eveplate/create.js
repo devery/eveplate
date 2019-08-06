@@ -1,7 +1,6 @@
 const ejs = require('ejs');
 const fs = require('fs');
 const fsExtra = require('fs-extra');
-const ora = require('ora');
 const path = require('path');
 
 class Create {
@@ -9,39 +8,8 @@ class Create {
         this.eveplate = context;
     }
 
-    async withSpinner(opts, cb) {
-        const spinner = ora(opts).start();
-
-        spinner.start();
-
-        try {
-            return await Promise.resolve(cb(spinner));
-        } finally {
-            spinner.stop();
-        }
-    }
-
-    file(file, cb) {
-        return this.withSpinner(
-            `... Generating '${file}'`,
-            async (spinner) => {
-                try {
-                    const result = await Promise.resolve(cb(spinner));
-
-                    spinner.succeed(`File '${file}' generated.`);
-
-                    return result;
-                } catch (e) {
-                    spinner.fail(`Could not generate file '${file}': ${this.eveplate.utils.toStr(e)}`);
-
-                    process.exit(1);
-                }
-            }
-        );
-    };
-
     fromSource(from, to, data) {
-        return (source) => {
+        return ([source]) => {
             const net = source.substr(0, source.lastIndexOf('.'));
             this.eveplate.log(`... Setting up '${net}'`);
 
@@ -56,19 +24,19 @@ class Create {
     }
 
     packageJson(from, to, data) {
-        this.fromSource(from, to, data)('package.json.ejs');
+        this.fromSource(from, to, data)`package.json.ejs`;
     }
 
     indexHTML(from, to, data) {
-        this.fromSource(from, to, data)('index.html.ejs');
+        this.fromSource(from, to, data)`index.html.ejs`;
     }
 
     README(from, to, data) {
-        this.fromSource(from, to, data)('README.md.ejs');
+        this.fromSource(from, to, data)`README.md.ejs`;
     }
 
     fromData(to, data) {
-        return (source) => {
+        return ([source]) => {
             this.eveplate.log(`... Creating '${source}'`);
 
             fs.writeFileSync(`${String(to)}/${source}`, data.join("\n"), 'utf8');
@@ -76,7 +44,7 @@ class Create {
     }
 
     gitIgnore(outDir, values) {
-        this.fromData(outDir, values)('.gitignore');
+        this.fromData(outDir, values)`.gitignore`;
     }
 
     env(outDir, values) {
@@ -88,7 +56,7 @@ class Create {
         }
         lines.push('');
 
-        this.fromData(outDir, lines)('.env');
+        this.fromData(outDir, lines)`.env`;
     }
 
     copy(from, to, patterns, excludes) {
