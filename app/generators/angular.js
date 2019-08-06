@@ -30,7 +30,10 @@ exports.run = async function () {
 
     this.create.gitIgnore(
         outDir,
-        this.defaults.ignore
+        this.defaults.ignore.concat([
+            '/dist/*',
+            '!/dist/index.html'
+        ])
     );
 
     this.create.README(

@@ -87,7 +87,7 @@ class Ask {
 
             fs.mkdirSync(destDir);
 
-            this.eveplate.log(`Created directory '${destDir}'.`);
+            this.eveplate.log(`... Created directory '${destDir}'.`);
 
             return destDir;
         };
