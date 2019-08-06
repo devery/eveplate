@@ -32,7 +32,7 @@ exports.run = async function () {
         outDir,
         this.defaults.ignore.concat([
             '/dist/*',
-            '!/dist/index.html'
+            '!/dist/index.html',
         ])
     );
 

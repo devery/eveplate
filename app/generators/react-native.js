@@ -23,7 +23,7 @@ exports.run = async function () {
       opts
   );
 
-  this.create.fromSource(templatesDir, outDir, opts)('app.json.ejs');
+  this.create.fromSource(templatesDir, outDir, opts)`app.json.ejs`;
 
   this.create.gitIgnore(
       outDir,
