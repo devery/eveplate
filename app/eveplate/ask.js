@@ -9,7 +9,8 @@ class Ask {
     }
 
     forNPMInstall(cwd) {
-        this.eveplate.log(`Installing npm modules ...`);
+        this.eveplate.log(`... Installing npm modules`);
+
         this.eveplate.spawnCommandSync('npm', ['install'], { cwd });
     }
 
@@ -17,7 +18,7 @@ class Ask {
         const confirmOpts = {
             type: 'confirm',
             name: 'confirm',
-            message: this.eveplate.utils.toStringSafe(message),
+            message: this.eveplate.utils.toStr(message),
             default: opts.default,
         };
 
@@ -37,7 +38,7 @@ class Ask {
         const { confirm } = await this.eveplate.prompt([initOpts]);
         if (!confirm) return false;
 
-        this.eveplate.log(`Running 'git init' ...`);
+        this.eveplate.log(`... Running 'git init'`);
 
         this.eveplate.spawnCommandSync('git', ['init'], { cwd });
 
@@ -48,7 +49,7 @@ class Ask {
         };
 
         const { git_origin } = await this.eveplate.prompt([originOpts]);
-        const gitOrigin = String(git_origin).trim();
+        const gitOrigin = this.eveplate.utils.toShortStr(git_origin);
 
         if (gitOrigin !== '')
             this.eveplate.spawnCommandSync('git', ['remote', 'add', 'origin', gitOrigin], { cwd });
@@ -58,11 +59,11 @@ class Ask {
 
     async forPackageInfo() {
         const askAbout = async (item, opts) =>
-            String(await this.promptString(`Enter a ${item.toUpperCase()} for your project:`, opts)).trim();
+            this.eveplate.utils.toShortStr(await this.promptString(`Enter a ${item.toUpperCase()} for your project:`, opts));
 
         let name = await askAbout('name', {
             default: '',
-            validate: (val) => String(val).trim() !== ''
+            validate: (val) => this.eveplate.utils.toShortStr(val) !== ''
         });
 
         if (name === '') return false;
@@ -75,10 +76,11 @@ class Ask {
 
         let description;
         description = await askAbout('description', { default: '' });
-        description = this.eveplate.utils.toStringSafe(description);
+        description = this.eveplate.utils.toStr(description);
 
-        const mkDestinationDir = () => {
-            const destDir = path.resolve(path.join(this.eveplate.destinationPath(sanitizeFilename(name))));
+        const mkDestinationDir = dest => {
+            dest = dest || sanitizeFilename(name);
+            const destDir = path.resolve(path.join(this.eveplate.destinationPath(dest)));
 
             if (fs.existsSync(destDir))
                 throw new Error('[ERROR] directory already exists!');
@@ -90,7 +92,7 @@ class Ask {
             return destDir;
         };
 
-        return { name, title, description, mkDestinationDir, };
+        return { name, title, description, mkDistDir: mkDestinationDir, };
     }
 
     async forGenerators(choices) {
@@ -111,7 +113,7 @@ class Ask {
         const opts = {
             type: 'checkbox',
             name: 'checked_items',
-            message: this.eveplate.utils.toStringSafe(message),
+            message: this.eveplate.utils.toStr(message),
             choices: items,
         };
 
@@ -123,15 +125,16 @@ class Ask {
         let { validator } = opts;
 
         if (validator && validator === true) {
-            validator = (val) => this.eveplate.utils.toStringSafe(val).trim() !== '';
+            validator = (val) =>
+                this.eveplate.utils.toSafeShortStr(val) !== '';
         }
 
-        let defaultValue = this.eveplate.utils.toStringSafe(opts.default);
+        let defaultValue = this.eveplate.utils.toStr(opts.default);
 
         const promptOpts = {
             type: 'input',
             name: 'value',
-            message: this.eveplate.utils.toStringSafe(message),
+            message: this.eveplate.utils.toStr(message),
             validate: validator
         };
 

@@ -1,0 +1,8 @@
+import app from './bootstrap/app'
+import api from './bootstrap/api'
+import devery from './services/devery'<% if (database) { %>
+import db from './bootstrap/db'
+
+db(app);<% } %>
+api(app);
+devery.init();

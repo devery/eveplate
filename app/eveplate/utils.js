@@ -6,7 +6,7 @@ class Utils {
     toStringsList(val) {
         return _.chain(val)
             .toArray()
-            .map(p => String(p).trim())
+            .map(p => this.toShortStr(p))
             .compact()
             .value();
     }
@@ -27,8 +27,7 @@ class Utils {
 
         return _.chain(obj)
             .keys()
-            .sortBy((key) =>
-                this.toStringSafe(key).toLowerCase().trim())
+            .sortBy((key) => this.toSafeShortStr(key).toLowerCase())
             .reduce((a, i) => {
                 a[i] = obj[i];
                 return a
@@ -36,8 +35,16 @@ class Utils {
             .value();
     }
 
-    toStringSafe(val, defaultValue = '') {
-        return _.toString(val) || String(defaultValue)
+    toStr(val) {
+        return _.toString(val)
+    }
+
+    toShortStr(str) {
+        return String(str).trim();
+    }
+
+    toSafeShortStr(str) {
+        return this.toStr(str).trim()
     }
 }
 

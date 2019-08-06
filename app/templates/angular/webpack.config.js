@@ -1,3 +1,5 @@
+const webpack = require('webpack');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 
 module.exports = (env, argv) => ({
@@ -21,16 +23,20 @@ module.exports = (env, argv) => ({
             {
                 test: /\.ts$/,
                 exclude: /node_modules/,
-                use: {
-                    loader: 'babel-loader'
-                }
+                loaders: [
+                    {
+                        loader: 'awesome-typescript-loader',
+                        options: { configFileName: path.resolve(__dirname, 'tsconfig.json') }
+                    },
+                    'angular2-template-loader'
+                ]
             },
             {
                 test: /\.css$/,
                 use: [
-                    'style-loader',
+                    'to-string-loader',
                     'css-loader'
-                ]
+                ],
             },
             {
                 test: /\.(png|svg|jpg|gif)$/,
@@ -58,6 +64,18 @@ module.exports = (env, argv) => ({
             },
         ]
     },
+    plugins: [
+        // Workaround for Critical dependency
+        // The request of a dependency is an expression in ./node_modules/@angular/core/fesm5/core.js
+        new webpack.ContextReplacementPlugin(
+            /\@angular(\\|\/)core(\\|\/)fesm5/,
+            path.resolve(__dirname, '../src')
+        ),
+        new HtmlWebpackPlugin({
+            inject: false,
+            template: path.join(__dirname, 'dist/index.html')
+        })
+    ],
     devServer: {
         contentBase: path.join(__dirname, 'dist'),
         open: true,

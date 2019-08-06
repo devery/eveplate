@@ -4,7 +4,6 @@ import devery from './devery'
 const DEFAULT_MESSAGE = 'Please sign in to MetaMask';
 
 @Component({
-    moduleId: module.id,
     selector: 'app-root',
     encapsulation: ViewEncapsulation.None,
     styleUrls: ['./app.component.css'],

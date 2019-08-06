@@ -10,7 +10,7 @@ class Create {
     }
 
     async withSpinner(opts, cb) {
-        const spinner = new ora(opts);
+        const spinner = ora(opts).start();
 
         spinner.start();
 
@@ -23,7 +23,7 @@ class Create {
 
     file(file, cb) {
         return this.withSpinner(
-            `Generating '${file}' ...`,
+            `... Generating '${file}'`,
             async (spinner) => {
                 try {
                     const result = await Promise.resolve(cb(spinner));
@@ -32,7 +32,7 @@ class Create {
 
                     return result;
                 } catch (e) {
-                    spinner.fail(`Could not generate file '${file}': ${this.eveplate.utils.toStringSafe(e)}`);
+                    spinner.fail(`Could not generate file '${file}': ${this.eveplate.utils.toStr(e)}`);
 
                     process.exit(1);
                 }
@@ -40,28 +40,59 @@ class Create {
         );
     };
 
-    gitIgnore(outDir, entries) {
-        this.eveplate.log(`Creating '.gitignore' ...`);
+    fromSource(from, to, data) {
+        return (source) => {
+            const net = source.substr(0, source.lastIndexOf('.'));
+            this.eveplate.log(`... Setting up '${net}'`);
 
-        fs.writeFileSync(`${String(outDir)}/.gitignore`, entries.join("\n"), 'utf8');
+            try {
+                const compiled = ejs.render(fs.readFileSync(`${from}/${source}`, 'utf8'), data);
+
+                fs.writeFileSync(`${to}/${net}`, compiled, 'utf8');
+            } catch (e) {
+                throw new Error(`[ERROR] Could not generate file '${source}': ${this.eveplate.utils.toStr(e)}`);
+            }
+        };
     }
 
+    packageJson(from, to, data) {
+        this.fromSource(from, to, data)('package.json.ejs');
+    }
+
+    indexHTML(from, to, data) {
+        this.fromSource(from, to, data)('index.html.ejs');
+    }
+
+    README(from, to, data) {
+        this.fromSource(from, to, data)('README.md.ejs');
+    }
+
+    fromData(to, data) {
+        return (source) => {
+            this.eveplate.log(`... Creating '${source}'`);
+
+            fs.writeFileSync(`${String(to)}/${source}`, data.join("\n"), 'utf8');
+        }
+    }
+
+    gitIgnore(outDir, values) {
+        this.fromData(outDir, values)('.gitignore');
+    }
 
     env(outDir, values) {
-        this.eveplate.log(`Creating '.env' ...`);
-
         const lines = [];
         for (const key in values) {
-            lines.push(`${String(key).toUpperCase().trim()}=${String(values[key])}`);
+            if (!values.hasOwnProperty(key)) continue;
+
+            lines.push(`${this.eveplate.utils.toSafeShortStr(key).toUpperCase()}=${String(values[key])}`);
         }
         lines.push('');
 
-        fs.writeFileSync(`${String(outDir)}/.env`, lines.join("\n"), 'utf8');
+        this.fromData(outDir, lines)('.env');
     }
 
-
     copy(from, to, patterns, excludes) {
-        this.eveplate.log(`Copying files to '${to}' ...`);
+        this.eveplate.log(`... Copying files to '${to}'`);
 
         this.copyInner(from, to, { excludes, patterns, 'path': '/' });
     }
@@ -70,14 +101,12 @@ class Create {
         from = path.resolve(from);
         to = path.resolve(to);
 
-        const includePatterns = this.eveplate.utils
-            .toStringsList(patterns);
+        const includePatterns = this.eveplate.utils.toStringsList(patterns);
 
-        if (includePatterns.length < 1) {
-            includePatterns.push('**');
-        }
+        if (includePatterns.length < 1) includePatterns.push('**');
 
         for (const item of fsExtra.readdirSync(from)) {
+            const toItem = path.resolve(path.join(to, item));
             const fromItem = path.resolve(path.join(from, item));
             const stat = fsExtra.statSync(fromItem);
             const fromItemsRelative = [`${_path}${item}`];
@@ -87,11 +116,7 @@ class Create {
             if (stat.isDirectory()) {
                 fromItemsRelative.push(`${fromItemsRelative[0]}/`);
                 fromItemsRelative.push(`${fromItemsRelative[1].substr(1)}/`);
-            }
 
-            const toItem = path.resolve(path.join(to, item));
-
-            if (stat.isDirectory()) {
                 this.copyInner(fromItem, toItem, { excludes, patterns, 'path': `${_path}${item}/`, });
             } else {
                 if (fromItemsRelative.some(x => this.eveplate.utils.doesMatch(x, excludes))) continue;
@@ -104,12 +129,6 @@ class Create {
                 fsExtra.copySync(fromItem, toItem);
             }
         }
-    }
-
-    copyREADME(from, to, data) {
-        this.eveplate.log(`Setting up 'README.md' ...`);
-
-        fs.writeFileSync(`${to}/README.md`, ejs.render(fs.readFileSync(`${from}/README.md`, 'utf8'), data), 'utf8');
     }
 }
 
