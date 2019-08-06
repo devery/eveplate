@@ -24,22 +24,20 @@ module.exports = class extends Generator {
     async prompting() {
         const { version, description } = JSON.parse(fs.readFileSync(path.join(this.root, 'package.json'), 'utf8'));
         const choices = [];
-        {
-            const genDir = path.resolve(path.join(this.root, 'app/generators'));
+        const genDir = path.resolve(path.join(this.root, 'app/generators'));
 
-            for (const item of await fsExtra.readdir(genDir)) {
-                if (!item.endsWith('.js')) continue;
+        for (const item of await fsExtra.readdir(genDir)) {
+            if (!item.endsWith('.js')) continue;
 
-                const generatorFile = require.resolve(path.join(genDir, item));
-                const { about = {}, run: value } = require(generatorFile);
-                let { displayName: name } = about;
+            const generatorFile = require.resolve(path.join(genDir, item));
+            const { about = {}, run: value } = require(generatorFile);
+            let { displayName: name } = about;
 
-                name = this.utils.toSafeShortStr(name);
+            name = this.utils.toSafeShortStr(name);
 
-                if (name === '') name = path.basename(generatorFile);
+            if (name === '') name = path.basename(generatorFile);
 
-                choices.push({ name, value });
-            }
+            choices.push({ name, value });
         }
 
         process.stdout.write(`${chalk.reset()}`);

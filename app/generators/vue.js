@@ -37,7 +37,6 @@ exports.run = async function () {
         ])
     );
 
-
     this.create.README(templatesDir, outDir, { name });
 
     this.ask.forNPMInstall(outDir);
