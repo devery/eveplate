@@ -81,8 +81,7 @@ exports.run = async function () {
 
     this.create.README(
         templatesDir, outDir, {
-            name_internal: name,
-            title: title,
+            name,
             uses_mongodb: opts.database,
             uses_auth: opts.auth
         }
