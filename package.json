@@ -1,19 +1,34 @@
 {
   "name": "generator-eveplate",
   "version": "1.0.0",
-  "description": "Generator for devery",
+  "description": "Boilerplate for EVE and DeveryJS - Build Applications using our eveplate tool!",
   "files": [
     "app"
   ],
   "keywords": [
-    "yeoman-generator"
+    "yeoman-generator",
+    "devery",
+    "blokchain",
+    "Vue",
+    "Express",
+    "React",
+    "React Native",
+    "Angular",
+    "Webpack"
   ],
-  "homepage": "",
-  "bugs": "",
+  "license": "MIT",
+  "homepage": "http://www.eveplate.com/",
   "main": "app/index.js",
-  "bin": {},
-  "repository": {},
-  "scripts": {},
+  "repository": {
+    "type": "git",
+    "email": "",
+    "url": "https://github.com/devery/eveplate.git"
+  },
+  "author": {
+    "name": "devery",
+    "url": "https://github.com/devery"
+  },
+  "bugs": "https://github.com/devery/eveplate/issues",
   "dependencies": {
     "chalk": "^2.4.2",
     "ejs": "latest",
