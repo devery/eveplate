@@ -1,7 +1,5 @@
-import {Component, ViewEncapsulation} from '@angular/core';
+import {AfterViewInit, Component, ViewEncapsulation} from '@angular/core';
 import devery from './devery'
-
-const DEFAULT_MESSAGE = 'Please sign in to MetaMask';
 
 @Component({
     selector: 'app-root',
@@ -10,7 +8,9 @@ const DEFAULT_MESSAGE = 'Please sign in to MetaMask';
     template: `
         <div class="Explorer">
             <h1>Devery Explorer</h1>
-            <p>User Account: {{account}}</p>
+            <h3>User Account:</h3>
+            <span *ngIf="!account; else elseBlock">Please sign in to MetaMask</span>
+            <ng-template #elseBlock>{{account}}</ng-template>
 
             <h2>APP INFO</h2>
             <fieldset>
@@ -27,19 +27,30 @@ const DEFAULT_MESSAGE = 'Please sign in to MetaMask';
 
                 <label>
                     <span>App Info: active, appAccount, appName, fee, feeAccount</span>
-                    <input type="text" placeholder="App Address" [(ngModel)]="appAccount"/>
+                    <input type="text" placeholder="App Address" [(ngModel)]="appAddr"/>
                 </label>
 
-                <ng-container [ngSwitch]="!appAccount">
-                    <span *ngSwitchCase="false">Please insert App address first</span>
+                <ng-container [ngSwitch]="!appAddr">
+                    <span *ngSwitchCase="true">Please insert App address first</span>
                     <load-data
-                            *ngSwitchCase="true"
+                            *ngSwitchCase="false"
                             [loadDataFunc]="handleGetApp"
                             buttonMessage='Get App Info'
                     ></load-data>
                 </ng-container>
             </fieldset>
 
+            <fieldset>
+                <h3>Add App:</h3>
+                <ng-container [ngSwitch]="!account">
+                    <span *ngSwitchCase="true">Login with metamask first!</span>
+                    <post-data
+                            *ngSwitchCase="false"
+                            [postDataFunc]="addApp"
+                    ></post-data>
+                </ng-container>
+            </fieldset>
+            
             <h2>BRAND INFO</h2>
 
             <fieldset>
@@ -60,12 +71,23 @@ const DEFAULT_MESSAGE = 'Please sign in to MetaMask';
                 </label>
 
                 <ng-container [ngSwitch]="!checkBrandAddr">
-                    <span *ngSwitchCase="false">Please insert Brand address first</span>
+                    <span *ngSwitchCase="true">Please insert Brand address first</span>
                     <load-data
-                            *ngSwitchCase="true"
+                            *ngSwitchCase="false"
                             [loadDataFunc]="getBrand"
                             buttonMessage='Get Brand Info'
                     ></load-data>
+                </ng-container>
+            </fieldset>
+
+            <fieldset>
+                <h3>Add Brand:</h3>
+                <ng-container [ngSwitch]="!account">
+                    <span *ngSwitchCase="true">Login with metamask first!</span>
+                    <post-data
+                            *ngSwitchCase="false"
+                            [postDataFunc]="addBrand"
+                    ></post-data>
                 </ng-container>
             </fieldset>
 
@@ -90,29 +112,58 @@ const DEFAULT_MESSAGE = 'Please sign in to MetaMask';
                 </label>
 
                 <ng-container [ngSwitch]="!checkProductAddr">
-                    <span *ngSwitchCase="false">Please insert Product address first</span>
+                    <span *ngSwitchCase="true">Please insert Product address first</span>
                     <load-data
-                            *ngSwitchCase="true"
+                            *ngSwitchCase="false"
                             [loadDataFunc]="getProduct"
                             buttonMessage='Get Product Info'
                     ></load-data>
                 </ng-container>
             </fieldset>
+            
+            <fieldset>
+                <h3>Add Product:</h3>
+                <ng-container [ngSwitch]="!account">
+                    <span *ngSwitchCase="true">Login with metamask first!</span>
+                    <post-data
+                            *ngSwitchCase="false"
+                            [postDataFunc]="addProduct"
+                    ></post-data>
+                </ng-container>
+            </fieldset>
         </div>
     `,
 })
-export class AppComponent {
-    account: string = DEFAULT_MESSAGE;
-    appAccount: any = null;
+export class AppComponent implements AfterViewInit {
+    account: string = '';
+    appAddr: any = null;
     checkBrandAddr: string = '';
     checkProductAddr: string = '';
+
+    ngAfterViewInit(): void {
+        // @ts-ignore
+        if (!window.web3) return;
+
+        // @ts-ignore
+        const [account] = window.web3.eth.accounts;
+
+        if (account === undefined) {
+            this.account = '';
+            return;
+        }
+        if (account !== this.account) {
+            this.account = account
+        }
+    }
+
+    // All devery methods used in this example can be found at https://devery.github.io/deveryjs/
 
     handleGetAppAccounts() {
         return devery.appAccountsPaginated()
     }
 
     handleGetApp() {
-        return devery.getApp(this.appAccount)
+        return devery.getApp(this.appAddr)
     }
 
     handleGetBrandAccounts() {
@@ -133,5 +184,35 @@ export class AppComponent {
         const Product = await devery.getProduct(this.checkProductAddr);
         if (!Product.active) return Promise.reject('No product');
         return Promise.resolve(Product)
+    }
+
+    async addApp(data) {
+        try {
+            await devery.addApp(data, this.account, 0);
+        } catch (e) {
+            if (e.message.indexOf('User denied')) {
+                console.log('The user denied the transaction')
+            }
+        }
+    }
+
+    async addBrand(data) {
+        try {
+            await devery.addBrand(this.account, data)
+        } catch (e) {
+            if (e.message.indexOf('User denied')) {
+                console.log('The user denied the transaction')
+            }
+        }
+    }
+
+    async addProduct(data) {
+        try {
+            await devery.addProduct(this.account, data, 'batch 001', new Date().getFullYear(), 'Unknown place')
+        } catch (e) {
+            if (e.message.indexOf('User denied')) {
+                console.log('The user denied the transaction')
+            }
+        }
     }
 }
