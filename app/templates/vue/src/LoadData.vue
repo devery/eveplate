@@ -2,7 +2,7 @@
     <div>
         <pre>{{children}}</pre>
         <br/>
-        <button type="button" v-on:click="onClick">{{buttonMessage}}</button>
+        <button type="button" v-on:click="handleLoadData">{{buttonMessage}}</button>
     </div>
 </template>
 
@@ -24,7 +24,7 @@
             },
         },
         methods: {
-            async onClick() {
+            async handleLoadData() {
                 const wrong = 'Something went wrong';
                 let children;
 

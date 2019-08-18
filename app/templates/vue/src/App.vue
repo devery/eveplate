@@ -1,7 +1,9 @@
 <template>
     <div class="Explorer">
         <h1>Devery Explorer</h1>
-        <p>User Account: {{account}}</p>
+        <h3>User Account:</h3>
+        <span v-if="!account">Please sign in to MetaMask</span>
+        <span v-else>{{account}}</span>
 
         <h2>APP INFO</h2>
         <fieldset>
@@ -18,14 +20,24 @@
 
             <label>
                 <span>App Info: active, appAccount, appName, fee, feeAccount</span>
-                <input type="text" placeholder="App Address" v-model="appAccount"/>
+                <input type="text" placeholder="App Address" v-model="appAddr"/>
             </label>
 
-            <span v-if="!appAccount">Please insert App address first</span>
+            <span v-if="!appAddr">Please insert App address first!</span>
             <LoadData
                     v-else
                     v-bind:loadDataFunc="handleGetApp"
                     buttonMessage='Get App Info'
+            />
+        </fieldset>
+
+        <fieldset>
+            <h3>Add App:</h3>
+
+            <span v-if="!account">Login with metamask first!</span>
+            <PostData
+                    v-else
+                    v-bind:loadDataFunc="addApp"
             />
         </fieldset>
 
@@ -48,11 +60,21 @@
                 <input type="text" placeholder="Enter Brand Address" v-model="checkBrandAddr"/>
             </label>
 
-            <span v-if="!checkBrandAddr">Please insert Brand address first</span>
+            <span v-if="!checkBrandAddr">Please insert Brand address first!</span>
             <LoadData
                     v-else
                     v-bind:loadDataFunc="getBrand"
                     buttonMessage='Get Brand Info'
+            />
+        </fieldset>
+
+        <fieldset>
+            <h3>Add Brand:</h3>
+
+            <span v-if="!account">Login with metamask first!</span>
+            <PostData
+                    v-else
+                    v-bind:loadDataFunc="addBrand"
             />
         </fieldset>
 
@@ -76,30 +98,40 @@
                 <input type="text" placeholder="Enter A Product Address" v-model="checkProductAddr"/>
             </label>
 
-            <span v-if="!checkProductAddr">Please insert Product address first</span>
+            <span v-if="!checkProductAddr">Please insert Product address first!</span>
             <LoadData
                     v-else
                     v-bind:loadDataFunc="getProduct"
                     buttonMessage='Get Product Info'
             />
         </fieldset>
+
+        <fieldset>
+            <h3>Add Product:</h3>
+
+            <span v-if="!account">Login with metamask first!</span>
+            <PostData
+                    v-else
+                    v-bind:loadDataFunc="addProduct"
+            />
+        </fieldset>
     </div>
 </template>
 
 <script>
-    import LoadData from './LoadData.vue'
     import devery from './devery'
-
-    const DEFAULT_MESSAGE = 'Please sign in to MetaMask';
+    import LoadData from './LoadData.vue'
+    import PostData from './PostData.vue'
 
     export default {
         components: {
-            LoadData
+            LoadData,
+            PostData
         },
         data() {
             return {
-                account: DEFAULT_MESSAGE,
-                appAccount: null,
+                account: '',
+                appAddr: null,
                 checkBrandAddr: '',
                 checkProductAddr: '',
             }
@@ -107,10 +139,9 @@
         created() {
             if (!window.web3) return;
 
-            // Checks for active MetaMask account info.
-            let account = window.web3.eth.accounts[0];
+            let [account] = window.web3.eth.accounts;
             if (account === undefined) {
-                this.account = DEFAULT_MESSAGE;
+                this.account = '';
 
                 return
             }
@@ -120,11 +151,13 @@
             }
         },
         methods: {
+            // All devery methods used in this example can be found at https://devery.github.io/deveryjs/
+
             handleGetAppAccounts() {
                 return devery.appAccountsPaginated()
             },
             handleGetApp() {
-                return devery.getApp(this.appAccount)
+                return devery.getApp(this.appAddr)
             },
             handleGetBrandAccounts() {
                 return devery.brandAccountsPaginated()
@@ -141,6 +174,33 @@
                 const Product = await devery.getProduct(this.checkProductAddr);
                 if (!Product.active) return Promise.reject('No product');
                 return Promise.resolve(Product)
+            },
+            async addApp(data) {
+                try {
+                    await devery.addApp(data, this.account, 0);
+                } catch (e) {
+                    if (e.message.indexOf('User denied')) {
+                        console.log('The user denied the transaction')
+                    }
+                }
+            },
+            async addBrand(data) {
+                try {
+                    await devery.addBrand(this.account, data)
+                } catch (e) {
+                    if (e.message.indexOf('User denied')) {
+                        console.log('The user denied the transaction')
+                    }
+                }
+            },
+            async addProduct(data) {
+                try {
+                    await devery.addProduct(this.account, data, 'batch 001', new Date().getFullYear(), 'Unknown place')
+                } catch (e) {
+                    if (e.message.indexOf('User denied')) {
+                        console.log('The user denied the transaction')
+                    }
+                }
             }
         }
     }
