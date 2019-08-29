@@ -1,5 +1,5 @@
 {
-  "name": "generator-eveplate",
+  "name": "@devery/generator-eveplate",
   "version": "1.0.0",
   "description": "Boilerplate for EVE and DeveryJS - Build Applications using our eveplate tool!",
   "files": [
@@ -19,11 +19,7 @@
   "license": "MIT",
   "homepage": "http://www.eveplate.com/",
   "main": "app/index.js",
-  "repository": {
-    "type": "git",
-    "email": "",
-    "url": "https://github.com/devery/eveplate.git"
-  },
+  "repository": "git://github.com/devery/eveplate.git",
   "author": {
     "name": "devery",
     "url": "https://github.com/devery"

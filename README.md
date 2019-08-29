@@ -31,7 +31,7 @@ npx makes it easy to use CLI tools and other executables hosted on the registry.
 Using npx:
 
 ```sh
-npx -p yo -p generator-eveplate -c 'yo eveplate'
+npx -p yo -p @devery/generator-eveplate -c 'yo eveplate'
 ```
 
 or
@@ -42,13 +42,13 @@ or
 Using npm:
 
 ```sh
-npm install -g yo generator-eveplate
+npm install -g yo @devery/generator-eveplate
 ```
 
 or using yarn:
 
 ```sh
-yarn global add yo generator-eveplate
+yarn global add yo @devery/generator-eveplate
 ```
 
 and run:
