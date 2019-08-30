@@ -31,7 +31,7 @@ The [Ethereum](https://www.ethereum.org/) network  is an open source, public, bl
 Using npx:
 
 ```sh
-npx -p yo -p @devery/generator-eveplate -c 'yo eveplate'
+npx -p yo -p @devery/generator-eveplate -c 'yo @devery/eveplate'
 ```
 
 or
@@ -54,5 +54,5 @@ yarn global add yo @devery/generator-eveplate
 and run:
 
 ```sh
-yo eveplate
+yo @devery/eveplate
 ```
