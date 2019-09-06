@@ -37,7 +37,7 @@
             <span v-if="!account">Login with metamask first!</span>
             <PostData
                     v-else
-                    v-bind:loadDataFunc="addApp"
+                    v-bind:postDataFunc="addApp"
             />
         </fieldset>
 
@@ -74,7 +74,7 @@
             <span v-if="!account">Login with metamask first!</span>
             <PostData
                     v-else
-                    v-bind:loadDataFunc="addBrand"
+                    v-bind:postDataFunc="addBrand"
             />
         </fieldset>
 
@@ -112,7 +112,7 @@
             <span v-if="!account">Login with metamask first!</span>
             <PostData
                     v-else
-                    v-bind:loadDataFunc="addProduct"
+                    v-bind:postDataFunc="addProduct"
             />
         </fieldset>
     </div>
@@ -131,7 +131,7 @@
         data() {
             return {
                 account: '',
-                appAddr: null,
+                appAddr: '',
                 checkBrandAddr: '',
                 checkProductAddr: '',
             }
@@ -139,18 +139,22 @@
         created() {
             if (!window.web3) return;
 
-            let [account] = window.web3.eth.accounts;
-            if (account === undefined) {
-                this.account = '';
-
-                return
+            if (window.web3.eth && window.web3.eth.accounts) {
+                this.updateAccount(window.web3.eth.accounts[0]);
             }
 
-            if (account !== this.account) {
-                this.account = account
+            if (window.web3.currentProvider) {
+                window.web3.currentProvider.isMetaMask && window.web3.currentProvider.enable();
+                window.web3.currentProvider.publicConfigStore
+                    .on('update', ({selectedAddress}) => this.updateAccount(selectedAddress));
             }
         },
         methods: {
+            updateAccount(account) {
+                if (this.account === account) return;
+                this.account = account;
+            },
+
             // All devery methods used in this example can be found at https://devery.github.io/deveryjs/
 
             handleGetAppAccounts() {

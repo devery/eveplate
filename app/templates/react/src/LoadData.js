@@ -32,7 +32,7 @@ export default class extends Component {
         this.setState({ isLoading: true, children: 'Loading' });
 
         try {
-            children = await this.props.loadDataFunc() || wrong
+            children = JSON.stringify(await this.props.loadDataFunc());
         } catch (e) {
             console.error(e);
             children = wrong

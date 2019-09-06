@@ -18,15 +18,21 @@ export default class extends Component {
     componentDidMount() {
         if (!window.web3) return;
 
-        let [account] = window.web3.eth.accounts;
-        if (account === undefined) {
-            this.setState({ account: '' });
-            return
+        if (window.web3.eth && window.web3.eth.accounts) {
+            this.updateAccount(window.web3.eth.accounts[0]);
         }
-        if (account !== this.state.account) {
-            this.setState({ account })
+
+        if (window.web3.currentProvider) {
+            window.web3.currentProvider.isMetaMask && window.web3.currentProvider.enable();
+            window.web3.currentProvider.publicConfigStore
+                .on('update', ({selectedAddress}) => this.updateAccount(selectedAddress));
         }
     }
+
+    updateAccount = account => {
+        if (this.state.account === account) return;
+        this.setState({account})
+    };
 
     handleBrandAddrChange = ({ target: { value } }) => {
         this.setState({ checkBrandAddr: value })
@@ -55,7 +61,7 @@ export default class extends Component {
     };
 
     handleGetAppAccounts = () => {
-        return devery.appAccountsPaginated()
+        return devery.appAccountsPaginated(0, 10)
     };
 
     handleGetApp = async () => {
@@ -63,16 +69,16 @@ export default class extends Component {
     };
 
     handleGetBrandAccounts = () => {
-        return devery.brandAccountsPaginated()
+        return devery.brandAccountsPaginated(0, 10)
     };
 
     handleGetProductAccounts = () => {
-        return devery.productAccountsPaginated()
+        return devery.productAccountsPaginated(0, 10)
     };
 
     handleAddApp = async (data) => {
         try {
-            await devery.addApp(data, this.account, 0);
+            await devery.addApp(data, this.state.account, 0);
         } catch (e) {
             if (e.message.indexOf('User denied')) {
                 console.log('The user denied the transaction')
@@ -82,7 +88,7 @@ export default class extends Component {
 
     handleAddBrand = async (data) => {
         try {
-            await devery.addBrand(this.account, data);
+            await devery.addBrand(this.state.account, data);
         } catch (e) {
             if (e.message.indexOf('User denied')) {
                 console.log('The user denied the transaction')
@@ -92,7 +98,7 @@ export default class extends Component {
 
     handleAddProduct = async (data) => {
         try {
-            await devery.addProduct(this.account, data, 'batch 001', new Date().getFullYear(), 'Unknown place');
+            await devery.addProduct(this.state.account, data, 'batch 001', new Date().getFullYear(), 'Unknown place');
         } catch (e) {
             if (e.message.indexOf('User denied')) {
                 console.log('The user denied the transaction')

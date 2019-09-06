@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ViewEncapsulation} from '@angular/core';
+import {AfterViewInit, Component, ViewEncapsulation, ChangeDetectorRef} from '@angular/core';
 import devery from './devery'
 
 @Component({
@@ -43,9 +43,9 @@ import devery from './devery'
             <fieldset>
                 <h3>Add App:</h3>
                 <ng-container [ngSwitch]="!account">
-                    <span *ngSwitchCase="true">Login with metamask first!</span>
+                    <span *ngSwitchCase="false">Login with metamask first!</span>
                     <post-data
-                            *ngSwitchCase="false"
+                            *ngSwitchCase="true"
                             [postDataFunc]="addApp"
                     ></post-data>
                 </ng-container>
@@ -140,21 +140,28 @@ export class AppComponent implements AfterViewInit {
     checkBrandAddr: string = '';
     checkProductAddr: string = '';
 
+    constructor(private cd: ChangeDetectorRef) {}
+
     ngAfterViewInit(): void {
-        // @ts-ignore
         if (!window.web3) return;
 
-        // @ts-ignore
-        const [account] = window.web3.eth.accounts;
-
-        if (account === undefined) {
-            this.account = '';
-            return;
+        if (window.web3.eth && window.web3.eth.accounts) {
+            this.updateAccount(window.web3.eth.accounts[0]);
         }
-        if (account !== this.account) {
-            this.account = account
+
+        if (window.web3.currentProvider) {
+            window.web3.currentProvider.isMetaMask && window.web3.currentProvider.enable();
+            window.web3.currentProvider.publicConfigStore
+                .on('update', ({selectedAddress}) => this.updateAccount(selectedAddress));
         }
     }
+
+    updateAccount = account => {
+        if (account !== this.account) {
+            this.account = account;
+            this.cd.detectChanges()
+        }
+    };
 
     // All devery methods used in this example can be found at https://devery.github.io/deveryjs/
 
@@ -162,7 +169,7 @@ export class AppComponent implements AfterViewInit {
         return devery.appAccountsPaginated()
     }
 
-    handleGetApp() {
+    handleGetApp = () => {
         return devery.getApp(this.appAddr)
     }
 
@@ -174,19 +181,19 @@ export class AppComponent implements AfterViewInit {
         return devery.productAccountsPaginated()
     }
 
-    async getBrand() {
+    getBrand = async () => {
         const Brand = await devery.getBrand(this.checkBrandAddr);
         if (!Brand.active) return Promise.reject('No active brand');
         return Promise.resolve(Brand)
     }
 
-    async getProduct() {
+    getProduct = async () => {
         const Product = await devery.getProduct(this.checkProductAddr);
         if (!Product.active) return Promise.reject('No product');
         return Promise.resolve(Product)
     }
 
-    async addApp(data) {
+    addApp = async data => {
         try {
             await devery.addApp(data, this.account, 0);
         } catch (e) {
@@ -196,7 +203,7 @@ export class AppComponent implements AfterViewInit {
         }
     }
 
-    async addBrand(data) {
+    addBrand = async data => {
         try {
             await devery.addBrand(this.account, data)
         } catch (e) {
@@ -206,7 +213,7 @@ export class AppComponent implements AfterViewInit {
         }
     }
 
-    async addProduct(data) {
+    addProduct = async data => {
         try {
             await devery.addProduct(this.account, data, 'batch 001', new Date().getFullYear(), 'Unknown place')
         } catch (e) {

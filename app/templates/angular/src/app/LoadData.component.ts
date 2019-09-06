@@ -18,18 +18,17 @@ export class LoadDataComponent {
     children: string = 'Not loaded';
 
     async handleLoadData() {
-        const wrong = 'Something went wrong';
         let children;
 
         this.isLoading = true;
         this.children = 'Loading';
 
         try {
-            children = await this.loadDataFunc() || wrong;
+            children = JSON.stringify(await this.loadDataFunc());
         } catch (e) {
             console.error(e);
 
-            children = wrong;
+            children = 'Something went wrong';
         }
 
         this.children = children;
