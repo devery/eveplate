@@ -2,9 +2,9 @@
 
 > Boilerplate for EVE and DeveryJS - Build Applications using our eveplate tool!
 
-See [eveplate](http://eveplate.com) website for more information about this generator.
+See [eveplate](https://devery.github.io/eveplate) website for more information about this generator.
 
-See [devery](http://devery.io) website for more information about devery library.  
+See [devery.github.io](https://devery.github.io/deveryjs/) website for more information about devery library.  
 
 Eveplate is a generator to help you kickstart new projects based on Devery.js and a set of frameworks:
 * Vue
@@ -20,18 +20,18 @@ It is a complex clientside-stack to ensure seamless workflow comprising tools an
 
 Eveplate comprises two types of tools for improving your productivity and satisfaction when building a verification dapp based on the open source Devry protocol: the scaffolding tool (yo)  the build tool (webpack).
 
-## yo ##
-YO scaffolds out a new application while writing your build configuration NPM pulls in relevant build tasks and package manager dependencies that you might need for your build
+## Devery.js ##
+[Devery.js](https://github.com/devery/deveryjs) is an open source javascript framework developed by [Devery.io](https://devery.io) to ensure simple building verification apps based on an open source protocol which negates the need of direct interaction with the Etherium blockchain. Devery JS library provides all the writing and reading functions to ensure seamless workflow and to allow extending basic functionality.
 
-## npx ##
-npx makes it easy to use CLI tools and other executables hosted on the registry. It greatly simplifies a number of things that, until now, required a bit of ceremony to do with plain npm.
+## Ethereum ##
+The [Ethereum](https://www.ethereum.org/) network  is an open source, public, blockchain-based distributed computing platform and operating system featuring smart contract (scripting) functionality. On Ethereum, you can write code that controls digital value, runs exactly as programmed, and is accessible anywhere in the world.
 
 ## Run
 
 Using npx:
 
 ```sh
-npx -p yo -p @devery/generator-eveplate -c 'yo eveplate'
+npx -p yo -p @devery/generator-eveplate -c 'yo @devery/eveplate'
 ```
 
 or
@@ -54,5 +54,5 @@ yarn global add yo @devery/generator-eveplate
 and run:
 
 ```sh
-yo eveplate
+yo @devery/eveplate
 ```
