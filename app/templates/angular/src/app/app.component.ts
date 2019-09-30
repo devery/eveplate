@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ViewEncapsulation, ChangeDetectorRef} from '@angular/core';
-import devery from './devery'
+import DeveryExplorer from './devery'
 
 @Component({
     selector: 'app-root',
@@ -67,10 +67,10 @@ import devery from './devery'
                 <h3>Get Brand Info:</h3>
                 <label>
                     <span>Brand Info: brandAccount, appAccount, brandName, active</span>
-                    <input type="text" placeholder="Enter Brand Address" [(ngModel)]="checkBrandAddr"/>
+                    <input type="text" placeholder="Enter Brand Address" [(ngModel)]="brandAddr"/>
                 </label>
 
-                <ng-container [ngSwitch]="!checkBrandAddr">
+                <ng-container [ngSwitch]="!brandAddr">
                     <span *ngSwitchCase="true">Please insert Brand address first</span>
                     <load-data
                             *ngSwitchCase="false"
@@ -87,6 +87,17 @@ import devery from './devery'
                     <post-data
                             *ngSwitchCase="false"
                             [postDataFunc]="addBrand"
+                    ></post-data>
+                </ng-container>
+            </fieldset>
+            
+            <fieldset>
+                <h3>Permission account marking</h3>
+                <ng-container [ngSwitch]="!account">
+                    <span *ngSwitchCase="true">Login with metamask first!</span>
+                    <post-data
+                            *ngSwitchCase="false"
+                            [postDataFunc]="handlePermissionAccount"
                     ></post-data>
                 </ng-container>
             </fieldset>
@@ -108,10 +119,10 @@ import devery from './devery'
 
                 <label>
                     <span>Product Info: productAccount, brandAccount, description, details, year, origin, active</span>
-                    <input type="text" placeholder="Enter A Product Address" [(ngModel)]="checkProductAddr"/>
+                    <input type="text" placeholder="Enter A Product Address" [(ngModel)]="productAddr"/>
                 </label>
 
-                <ng-container [ngSwitch]="!checkProductAddr">
+                <ng-container [ngSwitch]="!productAddr">
                     <span *ngSwitchCase="true">Please insert Product address first</span>
                     <load-data
                             *ngSwitchCase="false"
@@ -136,90 +147,36 @@ import devery from './devery'
 })
 export class AppComponent implements AfterViewInit {
     account: string = '';
-    appAddr: any = null;
-    checkBrandAddr: string = '';
-    checkProductAddr: string = '';
+    appAddr: any = '';
+    brandAddr: string = '';
+    productAddr: string = '';
 
     constructor(private cd: ChangeDetectorRef) {}
 
     ngAfterViewInit(): void {
-        if (!window.web3) return;
-
-        if (window.web3.eth && window.web3.eth.accounts) {
-            this.updateAccount(window.web3.eth.accounts[0]);
-        }
-
-        if (window.web3.currentProvider) {
-            window.web3.currentProvider.isMetaMask && window.web3.currentProvider.enable();
-            window.web3.currentProvider.publicConfigStore
-                .on('update', ({selectedAddress}) => this.updateAccount(selectedAddress));
-        }
-    }
-
-    updateAccount = account => {
-        if (account !== this.account) {
+        DeveryExplorer.getAccount(async (account) => {
+            if (this.account === account) return;
             this.account = account;
-            this.cd.detectChanges()
-        }
-    };
-
-    // All devery methods used in this example can be found at https://devery.github.io/deveryjs/
-
-    handleGetAppAccounts() {
-        return devery.appAccountsPaginated()
+            this.cd.detectChanges();
+            await DeveryExplorer.checkAndUpdateAllowance(account);
+        })
     }
 
-    handleGetApp = () => {
-        return devery.getApp(this.appAddr)
-    }
+    /* Handle App */
+    handleGetAppAccounts = () => DeveryExplorer.getAppAccounts();
+    handleGetApp = () => DeveryExplorer.getApp(this.appAddr);
+    handleAddApp = data => DeveryExplorer.addApp(this.account, data);
 
-    handleGetBrandAccounts() {
-        return devery.brandAccountsPaginated()
-    }
+    /* Handle Brand */
+    handleGetBrandAccounts = () => DeveryExplorer.getBrandAccounts();
+    getBrand = () => DeveryExplorer.getBrand(this.brandAddr);
+    handleAddBrand = data => DeveryExplorer.addBrand(this.account, data);
 
-    handleGetProductAccounts() {
-        return devery.productAccountsPaginated()
-    }
+    /* Handle Account permission to mark account */
+    handlePermissionAccount = () => DeveryExplorer.permissionAccount(this.account);
 
-    getBrand = async () => {
-        const Brand = await devery.getBrand(this.checkBrandAddr);
-        if (!Brand.active) return Promise.reject('No active brand');
-        return Promise.resolve(Brand)
-    }
-
-    getProduct = async () => {
-        const Product = await devery.getProduct(this.checkProductAddr);
-        if (!Product.active) return Promise.reject('No product');
-        return Promise.resolve(Product)
-    }
-
-    addApp = async data => {
-        try {
-            await devery.addApp(data, this.account, 0);
-        } catch (e) {
-            if (e.message.indexOf('User denied')) {
-                console.log('The user denied the transaction')
-            }
-        }
-    }
-
-    addBrand = async data => {
-        try {
-            await devery.addBrand(this.account, data)
-        } catch (e) {
-            if (e.message.indexOf('User denied')) {
-                console.log('The user denied the transaction')
-            }
-        }
-    }
-
-    addProduct = async data => {
-        try {
-            await devery.addProduct(this.account, data, 'batch 001', new Date().getFullYear(), 'Unknown place')
-        } catch (e) {
-            if (e.message.indexOf('User denied')) {
-                console.log('The user denied the transaction')
-            }
-        }
-    }
+    /* Handle Product */
+    handleGetProductAccounts = () => DeveryExplorer.getProductAccounts();
+    getProduct = () => DeveryExplorer.getProduct(this.productAddr);
+    handleAddProduct = data => DeveryExplorer.addProduct(data);
 }

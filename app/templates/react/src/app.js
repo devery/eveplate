@@ -1,5 +1,5 @@
-import React, { Component } from 'react'
-import devery from './devery'
+import React, {Component} from 'react'
+import DeveryExplorer from './devery'
 import LoadData from './LoadData'
 import PostData from './PostData';
 
@@ -9,106 +9,45 @@ export default class extends Component {
 
         this.state = {
             account: '',
-            checkBrandAddr: '',
-            checkProductAddr: '',
-            appAddr: null,
+            brandAddr: '',
+            productAddr: '',
+            appAddr: '',
         }
     }
 
     componentDidMount() {
-        if (!window.web3) return;
-
-        if (window.web3.eth && window.web3.eth.accounts) {
-            this.updateAccount(window.web3.eth.accounts[0]);
-        }
-
-        if (window.web3.currentProvider) {
-            window.web3.currentProvider.isMetaMask && window.web3.currentProvider.enable();
-            window.web3.currentProvider.publicConfigStore
-                .on('update', ({selectedAddress}) => this.updateAccount(selectedAddress));
-        }
+        DeveryExplorer.getAccount(async (account) => {
+            if (this.state.account === account) return;
+            this.setState({account});
+            await DeveryExplorer.checkAndUpdateAllowance(account);
+        })
     }
 
-    updateAccount = account => {
-        if (this.state.account === account) return;
-        this.setState({account})
-    };
+    handleAppAccountChange = event => this.setState({appAddr: event.target.value});
+    handleBrandAddrChange = event => this.setState({brandAddr: event.target.value});
+    handleProductAddrChange = event => this.setState({productAddr: event.target.value});
 
-    handleBrandAddrChange = ({ target: { value } }) => {
-        this.setState({ checkBrandAddr: value })
-    };
+    /* Handle App */
+    handleGetAppAccounts = () => DeveryExplorer.getAppAccounts();
+    handleGetApp = () => DeveryExplorer.getApp(this.state.appAddr);
+    handleAddApp = data => DeveryExplorer.addApp(this.state.account, data);
 
-    handleProductAddrChange = ({ target: { value } }) => {
-        this.setState({ checkProductAddr: value })
-    };
+    /* Handle Brand */
+    handleGetBrandAccounts = () => DeveryExplorer.getBrandAccounts();
+    getBrand = () => DeveryExplorer.getBrand(this.state.brandAddr);
+    handleAddBrand = data => DeveryExplorer.addBrand(this.state.account, data);
 
-    handleAppAccountChange = ({ target: { value } }) => {
-        this.setState({ appAddr: value })
-    };
+    /* Handle Account permission to mark account */
+    handlePermissionAccount = () => DeveryExplorer.permissionAccount(this.state.account);
 
-    // All devery methods used in this example can be found at https://devery.github.io/deveryjs/
-
-    getBrand = async () => {
-        const Brand = await devery.getBrand(this.state.checkBrandAddr);
-        if (!Brand.active) return Promise.reject('No active brand');
-        return Promise.resolve(Brand)
-    };
-
-    getProduct = async () => {
-        const Product = await devery.getProduct(this.state.checkProductAddr);
-        if (!Product.active) return Promise.reject('No product');
-        return Promise.resolve(Product)
-    };
-
-    handleGetAppAccounts = () => {
-        return devery.appAccountsPaginated(0, 10)
-    };
-
-    handleGetApp = async () => {
-        return devery.getApp(this.state.appAddr)
-    };
-
-    handleGetBrandAccounts = () => {
-        return devery.brandAccountsPaginated(0, 10)
-    };
-
-    handleGetProductAccounts = () => {
-        return devery.productAccountsPaginated(0, 10)
-    };
-
-    handleAddApp = async (data) => {
-        try {
-            await devery.addApp(data, this.state.account, 0);
-        } catch (e) {
-            if (e.message.indexOf('User denied')) {
-                console.log('The user denied the transaction')
-            }
-        }
-    };
-
-    handleAddBrand = async (data) => {
-        try {
-            await devery.addBrand(this.state.account, data);
-        } catch (e) {
-            if (e.message.indexOf('User denied')) {
-                console.log('The user denied the transaction')
-            }
-        }
-    };
-
-    handleAddProduct = async (data) => {
-        try {
-            await devery.addProduct(this.state.account, data, 'batch 001', new Date().getFullYear(), 'Unknown place');
-        } catch (e) {
-            if (e.message.indexOf('User denied')) {
-                console.log('The user denied the transaction')
-            }
-        }
-    };
+    /* Handle Product */
+    handleGetProductAccounts = () => DeveryExplorer.getProductAccounts();
+    getProduct = () => DeveryExplorer.getProduct(this.state.productAddr);
+    handleAddProduct = data => DeveryExplorer.addProduct(data);
 
     render() {
         const {
-            account
+            account, appAddr, brandAddr, productAddr
         } = this.state;
 
         return (
@@ -139,7 +78,7 @@ export default class extends Component {
                         <input type="text" placeholder="App Address" onChange={this.handleAppAccountChange}/>
                     </label>
                     {
-                        !this.state.appAddr
+                        !appAddr
                             ? (<span>Please insert App address first!</span>)
                             : (<LoadData
                                 buttonMessage='Get App'
@@ -151,7 +90,7 @@ export default class extends Component {
                 <fieldset>
                     <h3>Add App:</h3>
                     {
-                        !this.state.account
+                        !account
                             ? (<span>Login with metamask first!</span>)
                             : (<PostData
                                 postDataFunc={this.handleAddApp}
@@ -179,7 +118,7 @@ export default class extends Component {
                     </label>
 
                     {
-                        !this.state.checkBrandAddr
+                        !brandAddr
                             ? (<span>Please insert Brand address first!</span>)
                             : (<LoadData
                                 buttonMessage='Get Brand Info'
@@ -191,10 +130,21 @@ export default class extends Component {
                 <fieldset>
                     <h3>Add Brand:</h3>
                     {
-                        !this.state.account
+                        !account
                             ? (<span>Login with metamask first!</span>)
                             : (<PostData
                                 postDataFunc={this.handleAddBrand}
+                            />)
+                    }
+                </fieldset>
+
+                <fieldset>
+                    <h3>Permission account marking</h3>
+                    {
+                        !account
+                            ? (<span>Login with metamask first!</span>)
+                            : (<PostData
+                                postDataFunc={this.handlePermissionAccount}
                             />)
                     }
                 </fieldset>
@@ -215,11 +165,12 @@ export default class extends Component {
                     <h3>Get Product Info:</h3>
                     <label>
                         <span>Product Info: productAccount, brandAccount, description, details, year, origin, active</span>
-                        <input type="text" placeholder="Enter A Product Address" onChange={this.handleProductAddrChange}/>
+                        <input type="text" placeholder="Enter A Product Address"
+                               onChange={this.handleProductAddrChange}/>
                     </label>
 
                     {
-                        !this.state.checkProductAddr
+                        !productAddr
                             ? (<span>Please insert Product address first!</span>)
                             : (<LoadData
                                 buttonMessage='Get Product Info'
@@ -231,7 +182,7 @@ export default class extends Component {
                 <fieldset>
                     <h3>Add Product:</h3>
                     {
-                        !this.state.account
+                        !account
                             ? (<span>Login with metamask first!</span>)
                             : (<PostData
                                 postDataFunc={this.handleAddProduct}

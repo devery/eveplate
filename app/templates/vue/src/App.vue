@@ -57,10 +57,10 @@
             <h3>Get Brand Info:</h3>
             <label>
                 <span>Brand Info: brandAccount, appAccount, brandName, active</span>
-                <input type="text" placeholder="Enter Brand Address" v-model="checkBrandAddr"/>
+                <input type="text" placeholder="Enter Brand Address" v-model="brandAddr"/>
             </label>
 
-            <span v-if="!checkBrandAddr">Please insert Brand address first!</span>
+            <span v-if="!brandAddr">Please insert Brand address first!</span>
             <LoadData
                     v-else
                     v-bind:loadDataFunc="getBrand"
@@ -75,6 +75,16 @@
             <PostData
                     v-else
                     v-bind:postDataFunc="addBrand"
+            />
+        </fieldset>
+
+        <fieldset>
+            <h3>Permission account marking</h3>
+
+            <span v-if="!account">Login with metamask first!</span>
+            <PostData
+                    v-else
+                    v-bind:postDataFunc="handlePermissionAccount"
             />
         </fieldset>
 
@@ -95,10 +105,10 @@
 
             <label>
                 <span>Product Info: productAccount, brandAccount, description, details, year, origin, active</span>
-                <input type="text" placeholder="Enter A Product Address" v-model="checkProductAddr"/>
+                <input type="text" placeholder="Enter A Product Address" v-model="productAddr"/>
             </label>
 
-            <span v-if="!checkProductAddr">Please insert Product address first!</span>
+            <span v-if="!productAddr">Please insert Product address first!</span>
             <LoadData
                     v-else
                     v-bind:loadDataFunc="getProduct"
@@ -119,7 +129,7 @@
 </template>
 
 <script>
-    import devery from './devery'
+    import DeveryExplorer from './devery'
     import LoadData from './LoadData.vue'
     import PostData from './PostData.vue'
 
@@ -132,80 +142,35 @@
             return {
                 account: '',
                 appAddr: '',
-                checkBrandAddr: '',
-                checkProductAddr: '',
+                brandAddr: '',
+                productAddr: '',
             }
         },
         created() {
-            if (!window.web3) return;
-
-            if (window.web3.eth && window.web3.eth.accounts) {
-                this.updateAccount(window.web3.eth.accounts[0]);
-            }
-
-            if (window.web3.currentProvider) {
-                window.web3.currentProvider.isMetaMask && window.web3.currentProvider.enable();
-                window.web3.currentProvider.publicConfigStore
-                    .on('update', ({selectedAddress}) => this.updateAccount(selectedAddress));
-            }
-        },
-        methods: {
-            updateAccount(account) {
+            DeveryExplorer.getAccount(async (account) => {
                 if (this.account === account) return;
                 this.account = account;
-            },
+                await DeveryExplorer.checkAndUpdateAllowance(account);
+            })
+        },
+        methods: {
+            /* Handle App */
+            handleGetAppAccounts: () => DeveryExplorer.getAppAccounts(),
+            handleGetApp: () => DeveryExplorer.getApp(this.appAddr),
+            handleAddApp: data => DeveryExplorer.addApp(this.account, data),
 
-            // All devery methods used in this example can be found at https://devery.github.io/deveryjs/
+            /* Handle Brand */
+            handleGetBrandAccounts: () => DeveryExplorer.getBrandAccounts(),
+            getBrand: () => DeveryExplorer.getBrand(this.brandAddr),
+            handleAddBrand: data => DeveryExplorer.addBrand(this.account, data),
 
-            handleGetAppAccounts() {
-                return devery.appAccountsPaginated()
-            },
-            handleGetApp() {
-                return devery.getApp(this.appAddr)
-            },
-            handleGetBrandAccounts() {
-                return devery.brandAccountsPaginated()
-            },
-            handleGetProductAccounts() {
-                return devery.productAccountsPaginated()
-            },
-            async getBrand() {
-                const Brand = await devery.getBrand(this.checkBrandAddr);
-                if (!Brand.active) return Promise.reject('No active brand');
-                return Promise.resolve(Brand)
-            },
-            async getProduct() {
-                const Product = await devery.getProduct(this.checkProductAddr);
-                if (!Product.active) return Promise.reject('No product');
-                return Promise.resolve(Product)
-            },
-            async addApp(data) {
-                try {
-                    await devery.addApp(data, this.account, 0);
-                } catch (e) {
-                    if (e.message.indexOf('User denied')) {
-                        console.log('The user denied the transaction')
-                    }
-                }
-            },
-            async addBrand(data) {
-                try {
-                    await devery.addBrand(this.account, data)
-                } catch (e) {
-                    if (e.message.indexOf('User denied')) {
-                        console.log('The user denied the transaction')
-                    }
-                }
-            },
-            async addProduct(data) {
-                try {
-                    await devery.addProduct(this.account, data, 'batch 001', new Date().getFullYear(), 'Unknown place')
-                } catch (e) {
-                    if (e.message.indexOf('User denied')) {
-                        console.log('The user denied the transaction')
-                    }
-                }
-            }
+            /* Handle Account permission to mark account */
+            handlePermissionAccount: () => DeveryExplorer.permissionAccount(this.account),
+
+            /* Handle Product */
+            handleGetProductAccounts: () => DeveryExplorer.getProductAccounts(),
+            getProduct: () => DeveryExplorer.getProduct(this.productAddr),
+            handleAddProduct: data => DeveryExplorer.addProduct(data)
         }
     }
 </script>
