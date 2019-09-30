@@ -1,6 +1,6 @@
 {
   "name": "@devery/generator-eveplate",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Boilerplate for EVE and DeveryJS - Build Applications using our eveplate tool!",
   "files": [
     "app"
