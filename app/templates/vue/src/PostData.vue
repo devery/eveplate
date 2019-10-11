@@ -1,6 +1,14 @@
 <template>
     <form v-on:submit="handlePostData">
-        <input type="text" title="Name" placeholder="Name" v-model="value">
+        <template v-for="(name, index) in fields">
+            <input
+                    type="text"
+                    v-bind:title="name"
+                    v-bind:placeholder="name"
+                    v-model="args[name]">
+            <b v-if="(index < fields.length - 1)"> , </b>
+        </template>
+        <br />
         <button type="submit">Add</button>
     </form>
 </template>
@@ -9,24 +17,29 @@
     export default {
         data() {
             return {
-                value: '',
+                args: {},
             }
         },
         props: {
             postDataFunc: {
                 type: Function
             },
+            fields: {
+                type: Array
+            }
         },
         methods: {
             async handlePostData(event) {
                 event.preventDefault();
 
                 try {
-                    await this.postDataFunc(this.value);
-                    this.value = '';
+                    const result = await this.postDataFunc(...this.fields.map(i => this.args[i]));
+                    console.log(result)
                 } catch (e) {
                     console.error(e);
                 }
+
+                this.fields.forEach(i => this.args[i] =  '');
             }
         }
     }

@@ -4,6 +4,8 @@
         <h3>User Account:</h3>
         <span v-if="!account">Please sign in to MetaMask</span>
         <span v-else>{{account}}</span>
+        <span>Registry Contract Address: {{registryContractAddress}}</span>
+        <span>ERC721 Contract Address: {{ercContractAddress}}</span>
 
         <h2>APP INFO</h2>
         <fieldset>
@@ -37,7 +39,7 @@
             <span v-if="!account">Login with metamask first!</span>
             <PostData
                     v-else
-                    v-bind:postDataFunc="addApp"
+                    v-bind:postDataFunc="handleAddApp"
             />
         </fieldset>
 
@@ -74,7 +76,7 @@
             <span v-if="!account">Login with metamask first!</span>
             <PostData
                     v-else
-                    v-bind:postDataFunc="addBrand"
+                    v-bind:postDataFunc="handleAddBrand"
             />
         </fieldset>
 
@@ -122,14 +124,30 @@
             <span v-if="!account">Login with metamask first!</span>
             <PostData
                     v-else
-                    v-bind:postDataFunc="addProduct"
+                    v-bind:postDataFunc="handleAddProduct"
+            />
+        </fieldset>
+
+        <h2>OWNER INFO</h2>
+
+        <fieldset>
+            <h3>Transfer Token:</h3>
+            <p>Safe Transfer Token: current owner account address as fromAddress, new owner account address as
+                toAddress, tokenId</p>
+
+
+            <span v-if="!account">Login with metamask first!</span>
+            <PostData
+                    v-else
+                    v-bind:postDataFunc="this.safeTransferTo"
+                    v-bind:fields="['fromAddress', 'toAddress', 'tokenId']"
             />
         </fieldset>
     </div>
 </template>
 
 <script>
-    import DeveryExplorer from './devery'
+    import DeveryExplorer, {registryContractAddress, ercContractAddress} from './devery'
     import LoadData from './LoadData.vue'
     import PostData from './PostData.vue'
 
@@ -144,6 +162,8 @@
                 appAddr: '',
                 brandAddr: '',
                 productAddr: '',
+                registryContractAddress,
+                ercContractAddress
             }
         },
         created() {
@@ -170,7 +190,10 @@
             /* Handle Product */
             handleGetProductAccounts: () => DeveryExplorer.getProductAccounts(),
             getProduct: () => DeveryExplorer.getProduct(this.productAddr),
-            handleAddProduct: data => DeveryExplorer.addProduct(data)
+            handleAddProduct: data => DeveryExplorer.addProduct(data),
+
+            /* Handle Token */
+            safeTransferTo: DeveryExplorer.safeTransferTo
         }
     }
 </script>
