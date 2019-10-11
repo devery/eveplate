@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import DeveryExplorer from './devery'
+import DeveryExplorer, {ercContractAddress, registryContractAddress} from './devery'
 import LoadData from './LoadData'
 import PostData from './PostData';
 
@@ -23,9 +23,7 @@ export default class extends Component {
         })
     }
 
-    handleAppAccountChange = event => this.setState({appAddr: event.target.value});
-    handleBrandAddrChange = event => this.setState({brandAddr: event.target.value});
-    handleProductAddrChange = event => this.setState({productAddr: event.target.value});
+    handleChangeInput = field => event => this.setState({[field]: event.target.value});
 
     /* Handle App */
     handleGetAppAccounts = () => DeveryExplorer.getAppAccounts();
@@ -60,6 +58,8 @@ export default class extends Component {
                         ? <span>Please sign in to MetaMask</span>
                         : <span>{account}</span>
                 }
+                <span>Registry Contract Address: {registryContractAddress}</span>
+                <span>ERC721 Contract Address: {ercContractAddress}</span>
 
                 <h2>APP INFO</h2>
                 <fieldset>
@@ -75,7 +75,7 @@ export default class extends Component {
                     <h3>Get App:</h3>
                     <label>
                         <span>App Info: active, appAccount, appName, fee, feeAccount</span>
-                        <input type="text" placeholder="App Address" onChange={this.handleAppAccountChange}/>
+                        <input type="text" placeholder="App Address" onChange={this.handleChangeInput('appAddr')}/>
                     </label>
                     {
                         !appAddr
@@ -114,7 +114,7 @@ export default class extends Component {
                     <h3>Get Brand Info:</h3>
                     <label>
                         <span>Brand Info: brandAccount, appAccount, brandName, active</span>
-                        <input type="text" placeholder="Enter Brand Address" onChange={this.handleBrandAddrChange}/>
+                        <input type="text" placeholder="Enter Brand Address" onChange={this.handleChangeInput('brandAddr')}/>
                     </label>
 
                     {
@@ -166,7 +166,7 @@ export default class extends Component {
                     <label>
                         <span>Product Info: productAccount, brandAccount, description, details, year, origin, active</span>
                         <input type="text" placeholder="Enter A Product Address"
-                               onChange={this.handleProductAddrChange}/>
+                               onChange={this.handleChangeInput('productAddr')}/>
                     </label>
 
                     {
@@ -186,6 +186,21 @@ export default class extends Component {
                             ? (<span>Login with metamask first!</span>)
                             : (<PostData
                                 postDataFunc={this.handleAddProduct}
+                            />)
+                    }
+                </fieldset>
+
+                <h2>OWNER INFO</h2>
+
+                <fieldset>
+                    <h3>Transfer Token:</h3>
+                    <p>Safe Transfer Token: current owner account address as fromAddress, new owner account address as toAddress, tokenId</p>
+                    {
+                        !account
+                            ? (<span>Login with metamask first!</span>)
+                            : (<PostData
+                                postDataFunc={DeveryExplorer.safeTransferTo}
+                                fields={['fromAddress', 'toAddress', 'tokenId']}
                             />)
                     }
                 </fieldset>
