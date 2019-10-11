@@ -1,5 +1,5 @@
 import {AfterViewInit, Component, ViewEncapsulation, ChangeDetectorRef} from '@angular/core';
-import DeveryExplorer from './devery'
+import DeveryExplorer, {ercContractAddress, registryContractAddress} from './devery'
 
 @Component({
     selector: 'app-root',
@@ -11,6 +11,8 @@ import DeveryExplorer from './devery'
             <h3>User Account:</h3>
             <span *ngIf="!account; else elseBlock">Please sign in to MetaMask</span>
             <ng-template #elseBlock>{{account}}</ng-template>
+            <span>Registry Contract Address: {{registryContractAddress}}</span>
+            <span>ERC721 Contract Address: {{ercContractAddress}}</span>
 
             <h2>APP INFO</h2>
             <fieldset>
@@ -46,11 +48,11 @@ import DeveryExplorer from './devery'
                     <span *ngSwitchCase="false">Login with metamask first!</span>
                     <post-data
                             *ngSwitchCase="true"
-                            [postDataFunc]="addApp"
+                            [postDataFunc]="handleAddApp"
                     ></post-data>
                 </ng-container>
             </fieldset>
-            
+
             <h2>BRAND INFO</h2>
 
             <fieldset>
@@ -86,11 +88,11 @@ import DeveryExplorer from './devery'
                     <span *ngSwitchCase="true">Login with metamask first!</span>
                     <post-data
                             *ngSwitchCase="false"
-                            [postDataFunc]="addBrand"
+                            [postDataFunc]="handleAddBrand"
                     ></post-data>
                 </ng-container>
             </fieldset>
-            
+
             <fieldset>
                 <h3>Permission account marking</h3>
                 <ng-container [ngSwitch]="!account">
@@ -131,14 +133,31 @@ import DeveryExplorer from './devery'
                     ></load-data>
                 </ng-container>
             </fieldset>
-            
+
             <fieldset>
                 <h3>Add Product:</h3>
                 <ng-container [ngSwitch]="!account">
                     <span *ngSwitchCase="true">Login with metamask first!</span>
                     <post-data
                             *ngSwitchCase="false"
-                            [postDataFunc]="addProduct"
+                            [postDataFunc]="handleAddProduct"
+                    ></post-data>
+                </ng-container>
+            </fieldset>
+
+            <h2>OWNER INFO</h2>
+
+            <fieldset>
+                <h3>Transfer Token:</h3>
+                <p>Safe Transfer Token: current owner account address as fromAddress, new owner account address as
+                    toAddress, tokenId</p>
+
+                <ng-container [ngSwitch]="!account">
+                    <span *ngSwitchCase="true">Login with metamask first!</span>
+                    <post-data
+                            *ngSwitchCase="false"
+                            [postDataFunc]="safeTransferTo"
+                            [fields]="['fromAddress', 'toAddress', 'tokenId']"
                     ></post-data>
                 </ng-container>
             </fieldset>
@@ -150,8 +169,11 @@ export class AppComponent implements AfterViewInit {
     appAddr: any = '';
     brandAddr: string = '';
     productAddr: string = '';
+    registryContractAddress = registryContractAddress;
+    ercContractAddress = ercContractAddress;
 
-    constructor(private cd: ChangeDetectorRef) {}
+    constructor(private cd: ChangeDetectorRef) {
+    }
 
     ngAfterViewInit(): void {
         DeveryExplorer.getAccount(async (account) => {
@@ -179,4 +201,7 @@ export class AppComponent implements AfterViewInit {
     handleGetProductAccounts = () => DeveryExplorer.getProductAccounts();
     getProduct = () => DeveryExplorer.getProduct(this.productAddr);
     handleAddProduct = data => DeveryExplorer.addProduct(data);
+
+    /* Handle Token */
+    safeTransferTo = DeveryExplorer.safeTransferTo
 }
