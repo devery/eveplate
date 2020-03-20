@@ -1,4 +1,15 @@
+<p align="right">
+<img src="img/logo.png"
+sizes= width="auto" height="156">
+</p>
+
+
 # generator-eveplate
+
+
+<p align="left">
+<img width="990" height="156" src="img/icons.png" >
+</p>
 
 > Boilerplate for EVE and DeveryJS - Build Applications using our eveplate tool!
 
@@ -20,8 +31,18 @@ It is a complex clientside-stack to ensure seamless workflow comprising tools an
 
 Eveplate comprises two types of tools for improving your productivity and satisfaction when building a verification dapp based on the open source Devry protocol: the scaffolding tool (yo)  the build tool (webpack).
 
+<p align="left">
+<img src="img/DeveryJS.png"
+sizes= width="159" height="87">
+</p>
+
 ## Devery.js ##
 [Devery.js](https://github.com/devery/deveryjs) is an open source javascript framework developed by [Devery.io](https://devery.io) to ensure simple building verification apps based on an open source protocol which negates the need of direct interaction with the Etherium blockchain. Devery JS library provides all the writing and reading functions to ensure seamless workflow and to allow extending basic functionality.
+
+<p align="left">
+<img src="img/ethlogo.png"
+sizes= width="66" height="108">
+</p>
 
 ## Ethereum ##
 The [Ethereum](https://www.ethereum.org/) network  is an open source, public, blockchain-based distributed computing platform and operating system featuring smart contract (scripting) functionality. On Ethereum, you can write code that controls digital value, runs exactly as programmed, and is accessible anywhere in the world.
@@ -56,3 +77,8 @@ and run:
 ```sh
 yo @devery/eveplate
 ```
+
+
+<span style="background-color: #7560aa"> <a href=" https://github.com/devery/node_boilerplate" style = "color: #FFFFFF"> Devery Vue.js+Node.js boilerplate </a>  </span>
+<span style="background-color: #2a3275"> <a href=" https://github.com/devery/deveryjs" style = "color: #FFFFFF"> DeveryJS</a>  </span>
+<span style="background-color: #737474"> <a href=" https://github.com/devery/react_boilerplate" style = "color: #FFFFFF"> Devery React + Node.js boilerplate </a>  </span>
