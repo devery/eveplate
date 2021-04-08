@@ -27,17 +27,9 @@ const allowanceForERC = checkAndUpdateAllowanceOfContract(ercContractAddress);
 
 class DeveryExplorer {
     getAccount(cb) {
-        if (!window.web3) return;
+        if (!window.ethereum) return;
 
-        if (window.web3.eth && window.web3.eth.accounts) {
-            cb(window.web3.eth.accounts[0]);
-        }
-
-        if (window.web3.currentProvider) {
-            window.web3.currentProvider.isMetaMask && window.web3.currentProvider.enable();
-            window.web3.currentProvider.publicConfigStore
-                .on('update', ({selectedAddress}) => cb(selectedAddress));
-        }
+        cb(window.ethereum.request({ method: 'eth_accounts' }));
     }
 
     async checkAndUpdateAllowance(account) {
